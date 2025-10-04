@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # HRMS Demo - Human Resource Management System
 
 A full-stack HRMS demo with MongoDB, Node.js/Express, React, and Python AI microservices.
@@ -199,3 +200,7 @@ AI_SERVICE_URL=http://ai-service:8000
 ## License
 
 Demo project - MIT License
+=======
+# HRMS-AI
+bolt-new
+>>>>>>> origin/main
