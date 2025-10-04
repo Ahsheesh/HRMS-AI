@@ -10,6 +10,7 @@ import performanceRoutes from './routes/performance.js';
 import projectRoutes from './routes/projects.js';
 import allocationRoutes from './routes/allocations.js';
 import aiRoutes from './routes/ai.js';
+import performanceAnalysisRoutes from './routes/performanceAnalysis.js';
 import AuditLog from './models/AuditLog.js';
 
 dotenv.config();
@@ -67,6 +68,7 @@ app.use('/api/performance', performanceRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/allocations', allocationRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/performance-analysis', performanceAnalysisRoutes);
 
 // Error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

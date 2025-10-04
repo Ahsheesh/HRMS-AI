@@ -7,6 +7,7 @@ import People from './pages/People';
 import Onboarding from './pages/Onboarding';
 import Performance from './pages/Performance';
 import Allocations from './pages/Allocations';
+import PerformanceAnalysis from './pages/PerformanceAnalysis';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -34,6 +35,8 @@ function AppContent() {
         return <Onboarding />;
       case 'performance':
         return <Performance />;
+      case 'performance-analysis':
+        return <PerformanceAnalysis />;
       case 'allocations':
         return <Allocations />;
       default:

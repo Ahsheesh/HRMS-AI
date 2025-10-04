@@ -8,6 +8,7 @@ export interface IOnboardingTask extends Document {
   duration?: string;
   status: 'pending' | 'in_progress' | 'completed';
   dueDate?: Date;
+  startDate?: Date;
   completedAt?: Date;
   assignedTo?: mongoose.Types.ObjectId;
   generatedByAI: boolean;
@@ -24,6 +25,7 @@ const OnboardingTaskSchema = new Schema<IOnboardingTask>({
   duration: { type: String },
   status: { type: String, enum: ['pending', 'in_progress', 'completed'], default: 'pending' },
   dueDate: { type: Date },
+  startDate: { type: Date },
   completedAt: { type: Date },
   assignedTo: { type: Schema.Types.ObjectId, ref: 'Employee' },
   generatedByAI: { type: Boolean, default: false },

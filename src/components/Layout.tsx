@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Users, ClipboardCheck, BarChart3, FolderKanban, LogOut } from 'lucide-react';
+import { Users, ClipboardCheck, BarChart3, FolderKanban, LogOut, LineChart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
@@ -16,6 +16,7 @@ export default function Layout({ children, currentView, onNavigate }: LayoutProp
     { id: 'people', label: 'People', icon: Users },
     { id: 'onboarding', label: 'Onboarding', icon: ClipboardCheck },
     { id: 'performance', label: 'Performance', icon: BarChart3 },
+    { id: 'performance-analysis', label: 'Performance Analysis', icon: LineChart },
     { id: 'allocations', label: 'Allocations', icon: FolderKanban },
   ];
 

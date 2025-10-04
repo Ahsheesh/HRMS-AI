@@ -4,6 +4,12 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import re
 from datetime import datetime
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+from io import BytesIO
+import base64
 
 app = FastAPI(title="HRMS AI Service", version="1.0.0")
 
@@ -252,6 +258,74 @@ async def query_docs(request: QueryRequest):
         "fallback": True,
         "todo": "Implement RAG pipeline for document Q&A"
     }
+
+
+class RadarChartRequest(BaseModel):
+    technical: float
+    communication: float
+    teamwork: float
+    initiative: float
+    leadership: float
+    punctuality: float
+
+
+@app.post("/ai/generate-performance-radar")
+async def generate_performance_radar(request: RadarChartRequest):
+    """
+    Generate a hexagonal radar chart for employee performance competencies.
+    Returns a base64-encoded PNG image.
+    """
+    try:
+        categories = ['Technical', 'Communication', 'Teamwork', 'Initiative', 'Leadership', 'Punctuality']
+        values = [
+            request.technical,
+            request.communication,
+            request.teamwork,
+            request.initiative,
+            request.leadership,
+            request.punctuality
+        ]
+
+        values += values[:1]
+
+        angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
+        angles += angles[:1]
+
+        fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(projection='polar'))
+
+        ax.plot(angles, values, 'o-', linewidth=2, color='#3b82f6', label='Score')
+        ax.fill(angles, values, alpha=0.25, color='#3b82f6')
+
+        ax.set_ylim(0, 5)
+        ax.set_yticks([1, 2, 3, 4, 5])
+        ax.set_yticklabels(['1', '2', '3', '4', '5'], fontsize=10, color='#64748b')
+
+        ax.set_xticks(angles[:-1])
+        ax.set_xticklabels(categories, fontsize=12, fontweight='bold', color='#1e293b')
+
+        ax.grid(True, linestyle='--', alpha=0.7, color='#cbd5e1')
+        ax.spines['polar'].set_color('#cbd5e1')
+
+        ax.set_facecolor('#f8fafc')
+        fig.patch.set_facecolor('white')
+
+        plt.title('Performance Competencies', size=16, fontweight='bold', pad=20, color='#0f172a')
+
+        buf = BytesIO()
+        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight', facecolor='white')
+        buf.seek(0)
+
+        image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+
+        plt.close(fig)
+
+        return {
+            "image": f"data:image/png;base64,{image_base64}",
+            "format": "png"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating radar chart: {str(e)}")
 
 
 if __name__ == "__main__":

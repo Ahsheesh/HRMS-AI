@@ -16,6 +16,10 @@ export interface IEmployee extends Document {
     phone: string;
     relationship: string;
   };
+  attendance: Array<{
+    date: Date;
+    status: 'Present' | 'Late' | 'Absent';
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,7 +39,11 @@ const EmployeeSchema = new Schema<IEmployee>({
     name: { type: String },
     phone: { type: String },
     relationship: { type: String }
-  }
+  },
+  attendance: [{
+    date: { type: Date, required: true },
+    status: { type: String, enum: ['Present', 'Late', 'Absent'], required: true }
+  }]
 }, { timestamps: true });
 
 export default mongoose.model<IEmployee>('Employee', EmployeeSchema);
