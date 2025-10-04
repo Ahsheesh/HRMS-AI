@@ -3,7 +3,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { Users, TrendingUp, Clock, Award, Calendar, Target } from 'lucide-react';
 
 const API_URL = 'http://localhost:4000/api';
-const AI_URL = 'http://localhost:8000';
+const AI_URL = '/ai-api';
 
 interface Employee {
   _id: string;
