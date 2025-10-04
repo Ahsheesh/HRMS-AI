@@ -95,7 +95,7 @@ export default function Performance() {
                   {Object.entries(selectedReview.scores).map(([key, value]) => (
                     <div key={key} className="text-center">
                       <p className="text-sm text-slate-600 capitalize mb-2">{key}</p>
-                      <div className="text-2xl font-bold text-blue-600">{value}</div>
+                      <div className="text-2xl font-bold text-blue-600">{String(value)}</div>
                     </div>
                   ))}
                 </div>
