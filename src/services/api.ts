@@ -17,8 +17,7 @@ const API_URL = 'http://localhost:4000/api'; // Your backend server URL
  */
 async function fetchFromAPI(endpoint: string, options: RequestInit = {}) {
   // Retrieve the session which contains the JWT access token
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  const token = localStorage.getItem('token');
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -41,30 +40,21 @@ async function fetchFromAPI(endpoint: string, options: RequestInit = {}) {
 // --- API Service Objects (Updated to use fetchFromAPI) ---
 
 export const authAPI = {
-  // Note: Login and registration still go through Supabase, which then provides
-  // the JWT token we use for our backend API calls.
   login: async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    if (!data.user) throw new Error('Login failed');
-    return {
-      token: data.session?.access_token || '',
-      user: data.user,
-    };
-  },
-  register: async (userData: any) => {
-    const { data, error } = await supabase.auth.signUp({
-      email: userData.email,
-      password: userData.password,
-      options: { data: userData },
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
     });
-    if (error) throw error;
-    if (!data.user) throw new Error('Registration failed');
-    return {
-      token: data.session?.access_token || '',
-      user: data.user,
-    };
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'API request failed');
+    }
+    return response.json();
   },
+  register: (userData: any) => fetchFromAPI('/auth/register', { method: 'POST', body: JSON.stringify(userData) }),
 };
 
 export const employeesAPI = {
@@ -115,6 +105,6 @@ export const allocationsAPI = {
 export const aiAPI = {
   generateOnboarding: (data: any) => fetchFromAPI('/ai/generate-onboarding', { method: 'POST', body: JSON.stringify(data) }),
   skillsMatch: (projectId: string, topK: number = 5) => fetchFromAPI(`/ai/skills-match?projectId=${projectId}&topK=${topK}`),
-  perfInsight: (employeeId: string) => fetchFromAPI(`/ai/perf-insight?employeeId=${employeeId}`),
+  perfInsight: (employeeId: string) => fetchFromAPI(`/perf-insight?employeeId=${employeeId}`),
   health: () => fetchFromAPI('/ai/health'),
 };

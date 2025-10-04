@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '../services/api';
+import { authAPI } from '../services/api';
 
 interface User {
   id: string;
@@ -23,59 +23,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          firstName: session.user.user_metadata?.firstName || 'User',
-          lastName: session.user.user_metadata?.lastName || '',
-          role: session.user.user_metadata?.role || 'user',
-        });
-      }
-      setLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          firstName: session.user.user_metadata?.firstName || 'User',
-          lastName: session.user.user_metadata?.lastName || '',
-          role: session.user.user_metadata?.role || 'user',
-        });
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    if (token && user) {
+      setUser(JSON.parse(user));
+    }
+    setLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) throw error;
-
-    if (data.user) {
-      setUser({
-        id: data.user.id,
-        email: data.user.email || '',
-        firstName: data.user.user_metadata?.firstName || 'User',
-        lastName: data.user.user_metadata?.lastName || '',
-        role: data.user.user_metadata?.role || 'user',
-      });
-    }
+    const { token, user } = await authAPI.login(email, password);
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    setUser(user);
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 

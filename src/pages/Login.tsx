@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/api';
 
 export default function Login() {
   const [email, setEmail] = useState('admin@hrms.demo');
@@ -18,24 +17,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      if (isSignUp) {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              firstName: 'Demo',
-              lastName: 'User',
-              role: 'hr',
-            },
-          },
-        });
-        if (signUpError) throw signUpError;
-        setSuccess('Account created! Signing you in...');
-        await login(email, password);
-      } else {
-        await login(email, password);
-      }
+      await login(email, password);
     } catch (err: any) {
       console.error('Auth error:', err);
       setError(err.message || 'Authentication failed. Please try again.');
