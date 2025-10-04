@@ -7,14 +7,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // Existing proxy for your Node.js API
       '/api': {
         target: 'http://localhost:4000',
         changeOrigin: true,
       },
-      // Add this new proxy rule for the Python AI service
       '/ai-api': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:8001', // Changed port from 8000 to 8001
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ai-api/, ''),
       },
