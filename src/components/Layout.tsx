@@ -16,7 +16,7 @@ export default function Layout({ children, currentView, onNavigate }: LayoutProp
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'people', label: 'People', icon: Users },
     { id: 'onboarding', label: 'Onboarding', icon: ClipboardCheck },
-    { id: 'performance-analysis', label: 'Performance Analysis', icon: LineChart },
+    { id: 'performance-analysis', label: 'Performance', icon: LineChart },
     { id: 'allocations', label: 'Allocations', icon: FolderKanban },
   ];
 
