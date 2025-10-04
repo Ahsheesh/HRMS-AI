@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HR Core Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div id="logo">HR</div>
+            <div class="title">HR Core</div>
+        </div>
+
+        <div class="greeting" id="greeting-text">Hello!</div>
+
+        <div class="sidebar">
+            <a href="onboarding.html" class="nav-item">Onboard</a>
+            <a href="analysis.html" class="nav-item">Analysis</a>
+            <a href="allocation.html" class="nav-item">Allocate</a>
+            <div class="nav-group-separator"></div>
+            <a href="employees.html" class="nav-item">Employees</a>
+            <a href="account.html" class="nav-item">Account</a>
+        </div>
+
+        <main class="main-content-area">
+            <div class="card current-task-card">
+                <div class="card-placeholder">
+                    Review Q3 Performance Reports
+                </div>
+            </div>
+
+            <div class="card attendance-card">
+                <div id="attendance-chart-container"></div>
+            </div>
+
+            <div class="card today-card">
+                 <div class="card-placeholder">
+                    11:00 AM: Team Sync<br>
+                    02:30 PM: Candidate Interviews
+                </div>
+            </div>
+
+            <div class="card plans-card">
+                 <div class="card-placeholder">
+                    Finalize budget by Friday.<br>
+                    Plan team offsite for next month.
+                </div>
+            </div>
+
+            <div class="card time-bar"></div>
+        </main>
+        
+        <div class="time-display" id="time-display"></div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

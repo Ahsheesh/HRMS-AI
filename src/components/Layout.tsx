@@ -1,0 +1,81 @@
+import { ReactNode } from 'react';
+import { Users, ClipboardCheck, BarChart3, FolderKanban, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+
+interface LayoutProps {
+  children: ReactNode;
+  currentView: string;
+  onNavigate: (view: string) => void;
+}
+
+export default function Layout({ children, currentView, onNavigate }: LayoutProps) {
+  const { user, logout } = useAuth();
+
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'people', label: 'People', icon: Users },
+    { id: 'onboarding', label: 'Onboarding', icon: ClipboardCheck },
+    { id: 'performance', label: 'Performance', icon: BarChart3 },
+    { id: 'allocations', label: 'Allocations', icon: FolderKanban },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex">
+      {/* Sidebar */}
+      <aside className="w-64 bg-slate-900 text-white flex flex-col">
+        <div className="p-6 border-b border-slate-700">
+          <h1 className="text-2xl font-bold">HRMS Demo</h1>
+          <p className="text-sm text-slate-400 mt-1">Human Resource System</p>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentView === item.id;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                <Icon size={20} />
+                <span className="font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 border-t border-slate-700">
+          <div className="flex items-center gap-3 px-4 py-3 mb-2">
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+              {user?.firstName?.[0]}{user?.lastName?.[0]}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{user?.firstName} {user?.lastName}</p>
+              <p className="text-sm text-slate-400 capitalize">{user?.role}</p>
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+          >
+            <LogOut size={20} />
+            <span className="font-medium">Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+}
