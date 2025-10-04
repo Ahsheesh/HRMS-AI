@@ -1,3 +1,4 @@
+// api/src/scripts/seed.ts
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';

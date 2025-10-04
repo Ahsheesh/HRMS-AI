@@ -1,3 +1,4 @@
+// src/components/Layout.tsx
 import { ReactNode } from 'react';
 import { Users, ClipboardCheck, BarChart3, FolderKanban, LogOut, LineChart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,21 +16,20 @@ export default function Layout({ children, currentView, onNavigate }: LayoutProp
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'people', label: 'People', icon: Users },
     { id: 'onboarding', label: 'Onboarding', icon: ClipboardCheck },
-    { id: 'performance', label: 'Performance', icon: BarChart3 },
     { id: 'performance-analysis', label: 'Performance Analysis', icon: LineChart },
     { id: 'allocations', label: 'Allocations', icon: FolderKanban },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="h-screen flex flex-row">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0">
         <div className="p-6 border-b border-slate-700">
           <h1 className="text-2xl font-bold">HRMS Demo</h1>
           <p className="text-sm text-slate-400 mt-1">Human Resource System</p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
@@ -72,7 +72,7 @@ export default function Layout({ children, currentView, onNavigate }: LayoutProp
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-y-auto bg-slate-50">
         <div className="max-w-7xl mx-auto p-8">
           {children}
         </div>
