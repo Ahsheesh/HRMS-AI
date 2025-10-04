@@ -10,22 +10,22 @@ help:
 	@echo "  make logs     - Show logs for all services"
 
 start:
-	docker-compose up -d
-	@echo "✓ Services started. API: http://localhost:4000 | AI: http://localhost:8000 | UI: http://localhost:3000"
+	docker compose up -d
+	@echo "✓ Services started. API: http://localhost:4000 | AI: http://localhost:8001 | UI: http://localhost:5173"
 
 stop:
-	docker-compose down
+	docker compose down
 
 build:
-	docker-compose build
+	docker compose build
 
 clean:
-	docker-compose down -v
+	docker compose down -v
 	@echo "✓ All containers and volumes removed"
 
 seed:
 	@echo "Seeding database..."
-	docker-compose exec api npm run seed
+	docker compose exec api npm run seed
 
 logs:
-	docker-compose logs -f
+	docker compose logs -f
