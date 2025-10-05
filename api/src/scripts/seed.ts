@@ -8,6 +8,8 @@ import Project from '../models/Project.js';
 import OnboardingTask from '../models/OnboardingTask.js';
 import PerformanceReview from '../models/PerformanceReview.js';
 import Allocation from '../models/Allocation.js';
+import JobOpening from '../models/JobOpening.js';
+import MockResume from '../models/MockResume.js';
 
 dotenv.config();
 
@@ -40,6 +42,109 @@ function getRandomScore() {
   return Math.floor(Math.random() * 2) + 3;
 }
 
+function generateMockResumes(count: number) {
+  const firstNames = ['Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery', 'Quinn', 'Cameron', 'Skyler', 'Jamie', 'Dakota', 'Rowan', 'Sage', 'River', 'Phoenix', 'Kai', 'Finley', 'Reese', 'Charlie', 'Drew', 'Blake', 'Harper', 'Emerson', 'Parker', 'Hayden', 'Peyton', 'Sydney', 'Alexis', 'Kendall', 'Oakley', 'Elliott', 'Sawyer', 'Jesse', 'Micah', 'Rory', 'Tatum', 'Ellis', 'Logan', 'Jordan'];
+  const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin', 'Lee', 'Thompson', 'White', 'Harris', 'Clark', 'Lewis', 'Robinson', 'Walker', 'Young', 'Hall', 'Allen', 'King', 'Wright', 'Scott', 'Green', 'Baker', 'Adams', 'Nelson', 'Carter', 'Mitchell'];
+
+  const skillSets = [
+    { role: 'Full Stack Engineer', skills: ['react', 'nodejs', 'typescript', 'mongodb', 'express', 'docker', 'git', 'rest-api'], education: 'Bachelor of Science in Computer Science', yearsRange: [3, 8] },
+    { role: 'Frontend Developer', skills: ['react', 'javascript', 'typescript', 'css', 'html', 'redux', 'webpack', 'tailwindcss'], education: 'Bachelor of Science in Computer Science', yearsRange: [2, 6] },
+    { role: 'Backend Engineer', skills: ['nodejs', 'python', 'postgresql', 'mongodb', 'redis', 'microservices', 'graphql', 'docker'], education: 'Bachelor of Computer Engineering', yearsRange: [3, 9] },
+    { role: 'DevOps Engineer', skills: ['kubernetes', 'docker', 'terraform', 'aws', 'azure', 'ci-cd', 'jenkins', 'monitoring', 'bash'], education: 'Bachelor of Information Technology', yearsRange: [4, 10] },
+    { role: 'Data Scientist', skills: ['python', 'machine-learning', 'tensorflow', 'data-analysis', 'sql', 'statistics', 'jupyter', 'pandas'], education: 'Master of Science in Data Science', yearsRange: [2, 7] },
+    { role: 'Machine Learning Engineer', skills: ['python', 'pytorch', 'tensorflow', 'mlops', 'computer-vision', 'nlp', 'aws', 'kubernetes'], education: 'Master of Science in Artificial Intelligence', yearsRange: [3, 8] },
+    { role: 'Mobile Developer', skills: ['react-native', 'swift', 'kotlin', 'ios', 'android', 'mobile-ui', 'firebase', 'app-store'], education: 'Bachelor of Computer Science', yearsRange: [2, 6] },
+    { role: 'Cloud Engineer', skills: ['aws', 'azure', 'gcp', 'terraform', 'serverless', 'lambda', 'cloud-architecture', 'networking'], education: 'Bachelor of Information Systems', yearsRange: [4, 9] },
+    { role: 'Security Engineer', skills: ['security', 'penetration-testing', 'cryptography', 'compliance', 'incident-response', 'firewall', 'siem'], education: 'Bachelor of Cybersecurity', yearsRange: [3, 8] },
+    { role: 'UI/UX Designer', skills: ['figma', 'sketch', 'user-research', 'prototyping', 'design-systems', 'wireframing', 'usability-testing'], education: 'Bachelor of Design', yearsRange: [2, 7] },
+    { role: 'Product Manager', skills: ['product-strategy', 'agile', 'jira', 'analytics', 'stakeholder-management', 'roadmapping', 'user-stories'], education: 'MBA in Product Management', yearsRange: [4, 10] },
+    { role: 'QA Engineer', skills: ['selenium', 'cypress', 'test-automation', 'api-testing', 'performance-testing', 'jest', 'mocha'], education: 'Bachelor of Software Engineering', yearsRange: [2, 6] },
+    { role: 'Data Engineer', skills: ['python', 'spark', 'airflow', 'sql', 'data-pipelines', 'etl', 'kafka', 'hadoop'], education: 'Bachelor of Computer Science', yearsRange: [3, 8] },
+    { role: 'Solutions Architect', skills: ['architecture', 'cloud', 'scalability', 'system-design', 'microservices', 'aws', 'kubernetes'], education: 'Master of Computer Science', yearsRange: [6, 12] },
+    { role: 'Site Reliability Engineer', skills: ['kubernetes', 'monitoring', 'prometheus', 'grafana', 'incident-management', 'linux', 'python'], education: 'Bachelor of Computer Engineering', yearsRange: [3, 8] }
+  ];
+
+  const resumes = [];
+
+  for (let i = 0; i < count; i++) {
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    const skillSet = skillSets[Math.floor(Math.random() * skillSets.length)];
+    const yearsExp = Math.floor(Math.random() * (skillSet.yearsRange[1] - skillSet.yearsRange[0] + 1)) + skillSet.yearsRange[0];
+
+    const additionalSkills = ['git', 'agile', 'scrum', 'rest-api', 'graphql', 'linux', 'problem-solving', 'team-collaboration'];
+    const finalSkills = [...skillSet.skills];
+    for (let j = 0; j < 3; j++) {
+      const randomSkill = additionalSkills[Math.floor(Math.random() * additionalSkills.length)];
+      if (!finalSkills.includes(randomSkill)) {
+        finalSkills.push(randomSkill);
+      }
+    }
+
+    const companies = ['TechCorp', 'InnovateLabs', 'CloudSystems Inc', 'DataFlow Solutions', 'NexGen Technologies', 'Quantum Dynamics', 'Velocity Software', 'Apex Digital', 'Horizon Tech', 'Pinnacle Systems'];
+    const prevCompany1 = companies[Math.floor(Math.random() * companies.length)];
+    const prevCompany2 = companies[Math.floor(Math.random() * companies.length)];
+
+    const resumeText = `
+${firstName} ${lastName}
+Email: ${firstName.toLowerCase()}.${lastName.toLowerCase()}@email.com | Phone: +1-555-${String(Math.floor(Math.random() * 9000) + 1000)}
+
+PROFESSIONAL SUMMARY
+${skillSet.role} with ${yearsExp} years of experience building scalable, high-performance applications. Proven track record of delivering complex projects on time and collaborating effectively with cross-functional teams. Strong expertise in ${finalSkills.slice(0, 4).join(', ')}, and modern software development practices. Passionate about writing clean, maintainable code and continuously learning new technologies.
+
+PROFESSIONAL EXPERIENCE
+
+${skillSet.role} | ${prevCompany1} | ${2023 - Math.floor(yearsExp / 2)} - Present
+• Led development of critical features serving over 100,000+ daily active users
+• Architected and implemented microservices architecture reducing system latency by 40%
+• Collaborated with product and design teams to deliver user-centric solutions
+• Mentored junior developers and conducted code reviews to maintain high code quality standards
+• Implemented CI/CD pipelines and automated testing, improving deployment frequency by 60%
+• Optimized database queries and caching strategies, improving application performance by 35%
+
+${skillSet.role.replace('Senior ', '').replace('Lead ', '')} | ${prevCompany2} | ${2023 - yearsExp} - ${2023 - Math.floor(yearsExp / 2)}
+• Developed and maintained full-stack web applications using modern frameworks and tools
+• Worked closely with stakeholders to gather requirements and translate them into technical solutions
+• Participated in agile development processes including sprint planning, daily standups, and retrospectives
+• Implemented responsive UI components and ensured cross-browser compatibility
+• Collaborated with DevOps team to deploy applications to cloud infrastructure
+• Wrote comprehensive unit and integration tests achieving 85%+ code coverage
+
+EDUCATION
+${skillSet.education} | State University | ${2023 - yearsExp - 4}
+
+TECHNICAL SKILLS
+Programming Languages: JavaScript, TypeScript, Python, Java
+Frontend: React, Vue.js, HTML5, CSS3, Tailwind CSS, Redux
+Backend: Node.js, Express, FastAPI, Django, REST APIs, GraphQL
+Databases: MongoDB, PostgreSQL, MySQL, Redis
+Cloud & DevOps: AWS, Docker, Kubernetes, Terraform, CI/CD, Jenkins
+Tools: Git, Jira, Confluence, VS Code, Postman
+
+CERTIFICATIONS
+• AWS Certified Solutions Architect
+• Certified Kubernetes Administrator (CKA)
+
+PROJECTS
+• Built real-time analytics dashboard processing 1M+ events per day
+• Developed recommendation engine using machine learning algorithms
+• Created mobile app with 50K+ downloads and 4.5-star rating
+    `.trim();
+
+    resumes.push({
+      name: `${firstName} ${lastName}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@email.com`,
+      phone: `+1-555-${String(Math.floor(Math.random() * 9000) + 1000)}`,
+      resumeText,
+      skills: finalSkills,
+      experienceYears: yearsExp,
+      education: skillSet.education
+    });
+  }
+
+  return resumes;
+}
+
 async function seed() {
   try {
     console.log('Connecting to MongoDB...');
@@ -53,7 +158,9 @@ async function seed() {
       Project.deleteMany({}),
       OnboardingTask.deleteMany({}),
       PerformanceReview.deleteMany({}),
-      Allocation.deleteMany({})
+      Allocation.deleteMany({}),
+      JobOpening.deleteMany({}),
+      MockResume.deleteMany({})
     ]);
     console.log('✓ Cleared existing data');
 
@@ -328,6 +435,56 @@ async function seed() {
 
     await PerformanceReview.create(reviewsData);
     console.log(`✓ Created ${reviewsData.length} performance reviews`);
+
+    console.log('Creating job openings...');
+    const jobOpenings = await JobOpening.create([
+      {
+        title: 'Senior Full Stack Engineer',
+        department: 'Engineering',
+        description: 'We are looking for an experienced Full Stack Engineer to join our growing team. The ideal candidate will have strong experience with React, Node.js, TypeScript, and modern web technologies. You will be responsible for designing and implementing scalable web applications, collaborating with cross-functional teams, and mentoring junior developers. Key responsibilities include architecting backend APIs, building responsive frontends, optimizing performance, and ensuring code quality through testing and code reviews.',
+        requiredSkills: ['react', 'nodejs', 'typescript', 'mongodb', 'docker', 'aws', 'microservices'],
+        status: 'Open',
+        postedDate: new Date()
+      },
+      {
+        title: 'DevOps Engineer',
+        department: 'Engineering',
+        description: 'Join our DevOps team to build and maintain our cloud infrastructure. We need someone with expertise in Kubernetes, Docker, CI/CD pipelines, and AWS. You will automate deployment processes, manage infrastructure as code using Terraform, monitor system performance, and ensure high availability of our services. Experience with Jenkins, GitLab CI, monitoring tools like Prometheus and Grafana, and scripting languages is highly valued.',
+        requiredSkills: ['kubernetes', 'docker', 'terraform', 'aws', 'ci-cd', 'jenkins', 'monitoring'],
+        status: 'Open',
+        postedDate: new Date()
+      },
+      {
+        title: 'Machine Learning Engineer',
+        department: 'Data',
+        description: 'We are seeking a talented Machine Learning Engineer to develop and deploy ML models at scale. The role involves working with large datasets, building recommendation systems, implementing NLP solutions, and deploying models to production. You should have strong Python skills, experience with TensorFlow or PyTorch, and knowledge of MLOps practices. Familiarity with data pipelines, feature engineering, model monitoring, and A/B testing is essential.',
+        requiredSkills: ['python', 'machine-learning', 'tensorflow', 'pytorch', 'mlops', 'nlp', 'data-pipelines'],
+        status: 'Open',
+        postedDate: new Date()
+      },
+      {
+        title: 'Senior Frontend Developer',
+        department: 'Engineering',
+        description: 'Looking for a passionate Senior Frontend Developer with deep expertise in React and modern web technologies. You will lead the development of our user-facing applications, implement complex UI components, optimize performance, and ensure accessibility standards. The ideal candidate has experience with state management (Redux, Context API), CSS-in-JS, responsive design, and progressive web apps. You will collaborate closely with designers and backend engineers to deliver exceptional user experiences.',
+        requiredSkills: ['react', 'typescript', 'redux', 'css', 'webpack', 'performance-optimization', 'a11y'],
+        status: 'Open',
+        postedDate: new Date()
+      },
+      {
+        title: 'Product Manager',
+        department: 'Product',
+        description: 'We need an experienced Product Manager to drive product strategy and execution. You will work closely with engineering, design, and business stakeholders to define product roadmaps, prioritize features, and deliver value to customers. Strong analytical skills, experience with agile methodologies, and excellent communication abilities are required. You should be comfortable with data-driven decision making, user research, competitive analysis, and stakeholder management.',
+        requiredSkills: ['product-strategy', 'agile', 'analytics', 'stakeholder-management', 'jira', 'user-research'],
+        status: 'Open',
+        postedDate: new Date()
+      }
+    ]);
+    console.log(`✓ Created ${jobOpenings.length} job openings`);
+
+    console.log('Creating mock resumes (talent pool)...');
+    const mockResumesData = generateMockResumes(120);
+    await MockResume.create(mockResumesData);
+    console.log(`✓ Created ${mockResumesData.length} mock resumes`);
 
     console.log('\n✓✓✓ Seed completed successfully! ✓✓✓\n');
     console.log('Demo credentials:');

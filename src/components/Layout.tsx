@@ -1,6 +1,6 @@
 // src/components/Layout.tsx
 import { ReactNode } from 'react';
-import { Users, ClipboardCheck, BarChart3, FolderKanban, LogOut, LineChart } from 'lucide-react';
+import { Users, ClipboardCheck, BarChart3, FolderKanban, LogOut, LineChart, Briefcase } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
@@ -15,6 +15,7 @@ export default function Layout({ children, currentView, onNavigate }: LayoutProp
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'people', label: 'People', icon: Users },
+    { id: 'recruitment', label: 'Recruitment', icon: Briefcase },
     { id: 'onboarding', label: 'Onboarding', icon: ClipboardCheck },
     { id: 'performance-analysis', label: 'Performance', icon: LineChart },
     { id: 'allocations', label: 'Allocations', icon: FolderKanban },

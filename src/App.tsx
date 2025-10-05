@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import People from './pages/People';
+import Recruitment from './pages/Recruitment';
 import Onboarding from './pages/Onboarding';
 import Performance from './pages/Performance';
 import Allocations from './pages/Allocations';
@@ -31,6 +32,8 @@ function AppContent() {
         return <Dashboard />;
       case 'people':
         return <People />;
+      case 'recruitment':
+        return <Recruitment />;
       case 'onboarding':
         return <Onboarding />;
       case 'performance':

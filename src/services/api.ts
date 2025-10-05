@@ -108,3 +108,12 @@ export const aiAPI = {
   perfInsight: (employeeId: string) => fetchFromAPI(`/perf-insight?employeeId=${employeeId}`),
   health: () => fetchFromAPI('/ai/health'),
 };
+
+export const recruitmentAPI = {
+  getJobs: () => fetchFromAPI('/recruitment/jobs'),
+  getJob: (id: string) => fetchFromAPI(`/recruitment/jobs/${id}`),
+  generateProfile: (jobDescription: string) => fetchFromAPI('/recruitment/generate-profile', { method: 'POST', body: JSON.stringify({ jobDescription }) }),
+  findMatches: (jobId: string, idealProfile: any) => fetchFromAPI('/recruitment/find-matches', { method: 'POST', body: JSON.stringify({ jobId, idealProfile }) }),
+  generateQuestions: (jobTitle: string, requiredSkills: string[]) => fetchFromAPI('/recruitment/generate-questions', { method: 'POST', body: JSON.stringify({ jobTitle, requiredSkills }) }),
+  hire: (mockResumeId: string, jobId?: string) => fetchFromAPI('/recruitment/hire', { method: 'POST', body: JSON.stringify({ mockResumeId, jobId }) }),
+};
