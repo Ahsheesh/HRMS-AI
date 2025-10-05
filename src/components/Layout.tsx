@@ -1,5 +1,4 @@
-// src/components/Layout.tsx
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Users, ClipboardCheck, BarChart3, FolderKanban, LogOut, LineChart, Briefcase } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -11,6 +10,19 @@ interface LayoutProps {
 
 export default function Layout({ children, currentView, onNavigate }: LayoutProps) {
   const { user, logout } = useAuth();
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = time.getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -74,6 +86,10 @@ export default function Layout({ children, currentView, onNavigate }: LayoutProp
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto bg-slate-50">
+        <header className="bg-white shadow-sm p-4 flex justify-between items-center">
+            <h2 className="text-xl font-semibold">{getGreeting()}, {user?.firstName}!</h2>
+            <div className="text-lg font-medium">{time.toLocaleTimeString()}</div>
+        </header>
         <div className="max-w-7xl mx-auto p-8">
           {children}
         </div>
