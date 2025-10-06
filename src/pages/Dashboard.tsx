@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, ClipboardCheck, FolderKanban, TrendingUp, Mail } from 'lucide-react';
+import { Users, ClipboardCheck, FolderKanban, TrendingUp, Mail, Plus, Pencil } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { employeesAPI, onboardingAPI, performanceAPI, allocationsAPI } from '../services/api';
 
@@ -160,6 +160,7 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [newTask, setNewTask] = useState('');
   const [attendanceData, setAttendanceData] = useState<{ name: string; value: number }[]>([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [employees, setEmployees] = useState([]);
@@ -181,6 +182,14 @@ export default function Dashboard() {
         console.error(e);
       }
   }
+
+  const handleAddTask = () => {
+    if (newTask.trim() !== '') {
+      setTasks([...tasks, { _id: Date.now().toString(), title: newTask, description: '' }]);
+      setNewTask('');
+    }
+  };
+
 
   const loadStats = async () => {
     try {
@@ -265,11 +274,28 @@ export default function Dashboard() {
 
   return (
     <div>
-        {showEmailModal && <EmailModal onClose={() => setShowEmailModal(false)} employees={employees} />}
+      {showEmailModal && <EmailModal onClose={() => setShowEmailModal(false)} employees={employees} />}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
         <p className="text-slate-600 mt-2">Welcome to your HRMS overview</p>
       </div>
+
+      <div className="mb-6 bg-white rounded-lg shadow-sm border border-slate-200 p-4 flex items-center gap-4">
+        <input
+          type="text"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          placeholder="What is your main focus today?"
+          className="flex-grow px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          onClick={handleAddTask}
+          className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <Plus size={20} />
+        </button>
+      </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((card) => {
@@ -305,21 +331,48 @@ export default function Dashboard() {
                 </ResponsiveContainer>
             </div>
             <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-                <h2 className="text-xl font-bold text-slate-900 mb-4">Upcoming and Current Tasks</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-slate-900">To-Do List</h2>
+                <button onClick={() => {}} className="p-2 rounded-full hover:bg-slate-200">
+                  <Pencil size={16} />
+                </button>
+              </div>
                 <div className="space-y-3">
                     {tasks.slice(0, 5).map((task: any) => (
-                        <div key={task._id} className="p-4 bg-slate-50 rounded-lg">
-                           <p className="font-semibold text-slate-900">{task.title}</p>
-                           <p className="text-sm text-slate-600">{task.description}</p>
+                        <div key={task._id} className="p-4 bg-slate-50 rounded-lg flex justify-between items-center">
+                           <div>
+                            <p className="font-semibold text-slate-900">{task.title}</p>
+                            <p className="text-sm text-slate-600">{task.description}</p>
+                           </div>
+                           <input type="checkbox" className="form-checkbox h-5 w-5 text-blue-600" />
                         </div>
                     ))}
                 </div>
             </div>
-
         </div>
         <div className="lg:col-span-1 space-y-6">
-            <Calendar />
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">Leave Requests</h2>
+            <div className="space-y-3">
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <p className="font-semibold text-slate-900">John Doe</p>
+                <p className="text-sm text-slate-600">Vacation: 3 days</p>
+                <div className="mt-2 flex gap-2">
+                  <button className="px-3 py-1 bg-green-500 text-white rounded text-sm">Approve</button>
+                  <button className="px-3 py-1 bg-red-500 text-white rounded text-sm">Deny</button>
+                </div>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <p className="font-semibold text-slate-900">Jane Smith</p>
+                <p className="text-sm text-slate-600">Sick Leave: 1 day</p>
+                <div className="mt-2 flex gap-2">
+                  <button className="px-3 py-1 bg-green-500 text-white rounded text-sm">Approve</button>
+                  <button className="px-3 py-1 bg-red-500 text-white rounded text-sm">Deny</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
                 <h2 className="text-xl font-bold text-slate-900 mb-4">Quick Actions</h2>
                 <button onClick={() => setShowEmailModal(true)} className="w-full text-left px-4 py-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                     <div className="flex items-center gap-2">
@@ -328,6 +381,22 @@ export default function Dashboard() {
                     </div>
                     <p className="text-sm text-blue-700 mt-1">Send a mass email to all employees.</p>
                 </button>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">Team Directory</h2>
+              <div className="space-y-3">
+                {employees.slice(0, 5).map((e: any) => (
+                  <div key={e._id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600">
+                      {e.userId.firstName[0]}{e.userId.lastName[0]}
+                    </div>
+                    <div>
+                      <p className="font-semibold">{e.userId.firstName} {e.userId.lastName}</p>
+                      <p className="text-sm text-slate-500">{e.jobTitle}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
         </div>
       </div>

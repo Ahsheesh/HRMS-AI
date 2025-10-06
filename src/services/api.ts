@@ -104,8 +104,8 @@ export const allocationsAPI = {
 
 export const aiAPI = {
   generateOnboarding: (data: any) => fetchFromAPI('/ai/generate-onboarding', { method: 'POST', body: JSON.stringify(data) }),
-  skillsMatch: (projectId: string, topK: number = 5) => fetchFromAPI(`/ai/skills-match?projectId=${projectId}&topK=${topK}`),
-  perfInsight: (employeeId: string) => fetchFromAPI(`/perf-insight?employeeId=${employeeId}`),
+  skillsMatch: (projectId: string, topK: number = 5) => fetchFromAPI('/ai/skills-match', { method: 'POST', body: JSON.stringify({ projectId, topK }) }),
+  perfInsight: (employeeId: string) => fetchFromAPI(`/ai/perf-insight?employeeId=${employeeId}`),
   health: () => fetchFromAPI('/ai/health'),
 };
 

@@ -123,12 +123,12 @@ router.post('/generate-onboarding', async (req, res) => {
 });
 
 // Skills matching for project
-router.get('/skills-match', async (req, res) => {
+router.post('/skills-match', async (req, res) => {
   const startTime = Date.now();
   const requestId = uuidv4();
 
   try {
-    const { projectId, topK } = req.query;
+    const { projectId, topK } = req.body;
 
     if (!projectId) {
       return res.status(400).json({ error: 'projectId is required' });
@@ -138,13 +138,18 @@ router.get('/skills-match', async (req, res) => {
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
+    
+    const employees = await Employee.find({ status: 'active' }).populate('userId', 'firstName lastName');
 
-    const response = await axios.get(
+    const response = await axios.post(
       `${AI_SERVICE_URL}/ai/skills-match`,
       {
-        params: { projectId, requiredSkills: project.requiredSkills.join(','), topK: topK || 5 },
-        timeout: 5000
-      }
+        projectId,
+        requiredSkills: project.requiredSkills,
+        employees: employees,
+        topK: topK || 5
+      },
+      { timeout: 15000 }
     );
 
     const duration = Date.now() - startTime;
@@ -154,7 +159,7 @@ router.get('/skills-match', async (req, res) => {
       userId: req.user._id,
       action: 'AI: Skills Match',
       endpoint: '/ai/skills-match',
-      method: 'GET',
+      method: 'POST',
       aiCall: {
         service: 'ai-service',
         endpoint: '/ai/skills-match',
@@ -168,60 +173,10 @@ router.get('/skills-match', async (req, res) => {
     res.json(response.data);
   } catch (error: any) {
     console.error('AI service error:', error.message);
-
-    // Fallback: token overlap + availability
-    const project = await Project.findById(req.query.projectId);
-    const employees = await Employee.find({ status: 'active' }).populate('userId', 'firstName lastName');
-
-    const requiredSkills = project?.requiredSkills || [];
-    const candidates = employees.map(emp => {
-      const matchingSkills = emp.skills.filter(s =>
-        requiredSkills.some(rs => rs.toLowerCase().includes(s.toLowerCase()))
-      );
-
-      const tokenOverlap = matchingSkills.length / Math.max(requiredSkills.length, 1);
-      const availabilityScore = (100 - emp.currentAllocationPercent) / 100;
-      const score = 0.6 * tokenOverlap + 0.4 * availabilityScore;
-
-      return {
-        employeeId: emp._id,
-        employeeName: `${(emp.userId as any)?.firstName} ${(emp.userId as any)?.lastName}`,
-        score: Math.round(score * 100) / 100,
-        matchingSkills,
-        explain: `Token overlap: ${matchingSkills.length}/${requiredSkills.length} skills. Current allocation: ${emp.currentAllocationPercent}%`
-      };
-    });
-
-    candidates.sort((a, b) => b.score - a.score);
-
-    const fallbackResponse = {
-      projectId: req.query.projectId,
-      topCandidates: candidates.slice(0, parseInt(req.query.topK as string) || 5),
-      fallback: true,
-      todo: 'Replace with embedding-based matching when AI service is available'
-    };
-
-    const duration = Date.now() - startTime;
-
-    await AuditLog.create({
-      requestId,
-      userId: req.user._id,
-      action: 'AI: Skills Match (Fallback)',
-      endpoint: '/ai/skills-match',
-      method: 'GET',
-      aiCall: {
-        service: 'ai-service',
-        endpoint: '/ai/skills-match',
-        duration,
-        fallback: true,
-        modelUsed: 'token-overlap'
-      },
-      statusCode: 200
-    });
-
-    res.json(fallbackResponse);
+    res.status(500).json({ error: "Failed to get skill matches from AI service." });
   }
 });
+
 
 // Performance insight
 router.get('/perf-insight', async (req, res) => {

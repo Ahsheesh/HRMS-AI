@@ -2,6 +2,62 @@ import { useState, useEffect } from 'react';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { projectsAPI, allocationsAPI, aiAPI } from '../services/api';
 
+const AssignModal = ({ project, candidate, onClose, onAssign }: { project: any, candidate: any, onClose: () => void, onAssign: (payload: any) => void }) => {
+  const [allocationPercent, setAllocationPercent] = useState(50);
+  const [role, setRole] = useState('');
+
+  const handleSubmit = () => {
+    onAssign({
+      employeeId: candidate.employeeId,
+      projectId: project._id,
+      allocationPercent,
+      role: role || 'Team Member',
+      status: 'planned'
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+        <h2 className="text-xl font-bold text-slate-900 mb-4">Assign {candidate.employeeName}</h2>
+        <p className="text-sm text-slate-600 mb-4">To project: <span className="font-semibold">{project.name}</span></p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Role</label>
+            <input
+              type="text"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="e.g., Frontend Developer"
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Allocation Percentage</label>
+            <input
+              type="number"
+              value={allocationPercent}
+              onChange={(e) => setAllocationPercent(Number(e.target.value))}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200">
+            Cancel
+          </button>
+          <button onClick={handleSubmit} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Confirm Assignment
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 export default function Allocations() {
   const [projects, setProjects] = useState<any[]>([]);
   const [allocations, setAllocations] = useState<any[]>([]);
@@ -9,6 +65,9 @@ export default function Allocations() {
   const [matchResults, setMatchResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [matching, setMatching] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [candidateToAssign, setCandidateToAssign] = useState<any>(null);
+
 
   useEffect(() => {
     loadData();
@@ -16,13 +75,14 @@ export default function Allocations() {
 
   const loadData = async () => {
     try {
+      setLoading(true);
       const [projectsData, allocationsData] = await Promise.all([
         projectsAPI.getAll(),
         allocationsAPI.getAll(),
       ]);
       setProjects(projectsData);
       setAllocations(allocationsData);
-      if (projectsData.length > 0) {
+      if (projectsData.length > 0 && !selectedProject) {
         setSelectedProject(projectsData[0]);
       }
     } catch (error) {
@@ -48,16 +108,41 @@ export default function Allocations() {
     }
   };
 
+  const handleAssign = (candidate: any) => {
+    setCandidateToAssign(candidate);
+    setShowAssignModal(true);
+  };
+
+  const handleConfirmAssignment = async (payload: any) => {
+    try {
+      await allocationsAPI.create(payload);
+      setShowAssignModal(false);
+      setCandidateToAssign(null);
+      await loadData(); // Refresh allocations
+    } catch (error) {
+      console.error('Failed to create allocation:', error);
+    }
+  };
+
+
   const projectAllocations = allocations.filter(
     (a) => selectedProject && a.projectId._id === selectedProject._id
   );
 
-  if (loading) {
+  if (loading && !selectedProject) {
     return <div className="flex items-center justify-center h-64">Loading...</div>;
   }
 
   return (
     <div>
+      {showAssignModal && candidateToAssign && (
+        <AssignModal
+          project={selectedProject}
+          candidate={candidateToAssign}
+          onClose={() => setShowAssignModal(false)}
+          onAssign={handleConfirmAssignment}
+        />
+      )}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Resource Allocation</h1>
         <p className="text-slate-600 mt-2">Manage project assignments and team capacity</p>
@@ -95,7 +180,7 @@ export default function Allocations() {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
-          {selectedProject && (
+          {selectedProject ? (
             <>
               <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
                 <div className="flex items-center justify-between mb-4">
@@ -161,7 +246,9 @@ export default function Allocations() {
                             </div>
                             <div className="text-right">
                               <div className="text-2xl font-bold text-blue-600">{(candidate.score * 100).toFixed(0)}</div>
-                              <button className="text-sm text-blue-600 hover:text-blue-700 font-medium mt-1">
+                              <button
+                                onClick={() => handleAssign(candidate)}
+                                className="text-sm text-blue-600 hover:text-blue-700 font-medium mt-1">
                                 Assign
                               </button>
                             </div>
@@ -219,6 +306,10 @@ export default function Allocations() {
                 )}
               </div>
             </>
+          ) : (
+            <div className="text-center p-12 bg-white rounded-xl shadow-sm border border-slate-200">
+              <p>Please select a project to see details.</p>
+            </div>
           )}
         </div>
       </div>

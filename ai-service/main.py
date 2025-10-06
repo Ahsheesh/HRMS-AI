@@ -59,6 +59,19 @@ class OnboardingResponse(BaseModel):
     sources: Optional[List[Dict[str, str]]] = []
     todo: Optional[str] = None
 
+class Employee(BaseModel):
+    _id: str
+    employeeId: str
+    userId: Optional[Dict[str, str]]
+    skills: List[str]
+    currentAllocationPercent: int
+
+class SkillsMatchRequest(BaseModel):
+    projectId: str
+    requiredSkills: List[str]
+    employees: List[Employee]
+    topK: int = 5
+
 
 # Health check
 @app.get("/health")
@@ -192,19 +205,54 @@ async def generate_onboarding(request: OnboardingRequest):
 
 
 # Skills matching
-@app.get("/ai/skills-match")
-async def skills_match(projectId: str, requiredSkills: str, topK: int = 5):
+@app.post("/ai/skills-match")
+async def skills_match(request: SkillsMatchRequest):
     """
-    Match employees to project based on skills.
-    Currently returns deterministic stub - replace with embedding similarity.
+    Match employees to project based on skills using sentence embeddings.
     """
+    if not embedding_model:
+        raise HTTPException(status_code=503, detail="Model not loaded yet")
+
+    project_skills_text = ", ".join(request.requiredSkills)
+    project_embedding = embedding_model.encode([project_skills_text])
+
+    employee_skills_texts = [", ".join(emp.skills) for emp in request.employees]
+    if not employee_skills_texts:
+        return {
+            "projectId": request.projectId,
+            "topCandidates": [],
+            "fallback": False,
+        }
+    
+    employee_embeddings = embedding_model.encode(employee_skills_texts)
+
+    similarities = cosine_similarity(project_embedding, employee_embeddings)[0]
+
+    candidates = []
+    for i, emp in enumerate(request.employees):
+        skill_score = similarities[i]
+        availability_score = (100 - emp.currentAllocationPercent) / 100
+        
+        # Weighted score
+        score = 0.7 * skill_score + 0.3 * availability_score
+        
+        matching_skills = [s for s in emp.skills if s.lower() in [rs.lower() for rs in request.requiredSkills]]
+
+        candidates.append({
+            "employeeId": emp.employeeId,
+            "employeeName": f"{emp.userId['firstName']} {emp.userId['lastName']}",
+            "score": float(score),
+            "matchingSkills": matching_skills,
+            "explain": f"Skill match: {skill_score:.2f}, Availability: {availability_score:.2f}. Current allocation: {emp.currentAllocationPercent}%"
+        })
+
+    candidates.sort(key=lambda x: x['score'], reverse=True)
 
     return {
-        "projectId": projectId,
-        "topCandidates": [],
-        "fallback": True,
-        "todo": "Implement embedding-based skills matching using sentence-transformers and ChromaDB",
-        "message": "AI service stub - Node API will handle fallback with token overlap"
+        "projectId": request.projectId,
+        "topCandidates": candidates[:request.topK],
+        "fallback": False,
+        "todo": None
     }
 
 
