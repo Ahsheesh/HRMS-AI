@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Loader2 } from 'lucide-react';
-import { projectsAPI, allocationsAPI, aiAPI } from '../services/api';
+import { projectsAPI, allocationsAPI, aiAPI, employeesAPI } from '../services/api';
 
 const AssignModal = ({ project, candidate, onClose, onAssign }: { project: any, candidate: any, onClose: () => void, onAssign: (payload: any) => void }) => {
   const [allocationPercent, setAllocationPercent] = useState(50);
@@ -39,6 +39,8 @@ const AssignModal = ({ project, candidate, onClose, onAssign }: { project: any, 
               type="number"
               value={allocationPercent}
               onChange={(e) => setAllocationPercent(Number(e.target.value))}
+              min="1"
+              max="100"
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -61,6 +63,7 @@ const AssignModal = ({ project, candidate, onClose, onAssign }: { project: any, 
 export default function Allocations() {
   const [projects, setProjects] = useState<any[]>([]);
   const [allocations, setAllocations] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [matchResults, setMatchResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -76,12 +79,14 @@ export default function Allocations() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [projectsData, allocationsData] = await Promise.all([
+      const [projectsData, allocationsData, employeesData] = await Promise.all([
         projectsAPI.getAll(),
         allocationsAPI.getAll(),
+        employeesAPI.getAll(),
       ]);
       setProjects(projectsData);
       setAllocations(allocationsData);
+      setEmployees(employeesData);
       if (projectsData.length > 0) {
         setSelectedProject(projectsData[0]);
       }
@@ -118,15 +123,26 @@ export default function Allocations() {
       await allocationsAPI.create(payload);
       setShowAssignModal(false);
       setCandidateToAssign(null);
+      setMatchResults(null); // Clear match results after assignment
       await loadData(); // Refresh allocations
     } catch (error) {
       console.error('Failed to create allocation:', error);
+      alert('Failed to create allocation. Please try again.');
     }
   };
 
+  // Get employee details for an allocation
+  const getEmployeeDetails = (employeeId: string) => {
+    return employees.find(emp => emp._id === employeeId || emp.employeeId === employeeId);
+  };
 
   const projectAllocations = allocations.filter(
-    (a) => selectedProject && a.projectId._id === selectedProject._id
+    (a) => {
+      if (!selectedProject) return false;
+      // Handle both string and object projectId
+      const allocProjectId = typeof a.projectId === 'string' ? a.projectId : a.projectId?._id;
+      return allocProjectId === selectedProject._id;
+    }
   );
 
   if (loading && !selectedProject) {
@@ -248,7 +264,7 @@ export default function Allocations() {
                               <div className="text-2xl font-bold text-blue-600">{(candidate.score * 100).toFixed(0)}</div>
                               <button
                                 onClick={() => handleAssign(candidate)}
-                                className="text-sm text-blue-600 hover:text-blue-700 font-medium mt-1">
+                                className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg font-medium mt-1 transition-colors">
                                 Assign
                               </button>
                             </div>
@@ -282,24 +298,37 @@ export default function Allocations() {
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">Current Allocations</h3>
                 {projectAllocations.length > 0 ? (
                   <div className="space-y-3">
-                    {projectAllocations.map((alloc) => (
-                      <div key={alloc._id} className="p-4 bg-slate-50 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold text-slate-900">{alloc.employeeId.employeeId}</p>
-                            <p className="text-sm text-slate-600">{alloc.role}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-blue-600">{alloc.allocationPercent}%</p>
-                            <span className={`text-xs px-2 py-1 rounded-full ${
-                              alloc.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
-                            }`}>
-                              {alloc.status}
-                            </span>
+                    {projectAllocations.map((alloc) => {
+                      // Get employee ID - handle both string and object
+                      const empId = typeof alloc.employeeId === 'string' ? alloc.employeeId : alloc.employeeId?._id;
+                      const employee = getEmployeeDetails(empId);
+                      
+                      return (
+                        <div key={alloc._id} className="p-4 bg-slate-50 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-semibold text-slate-900">
+                                {employee 
+                                  ? `${employee.userId?.firstName || ''} ${employee.userId?.lastName || ''}`.trim() || employee.employeeId
+                                  : empId || 'Unknown Employee'}
+                              </p>
+                              <p className="text-sm text-slate-600">{alloc.role}</p>
+                              {employee?.jobTitle && (
+                                <p className="text-xs text-slate-500 mt-1">{employee.jobTitle}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-blue-600">{alloc.allocationPercent}%</p>
+                              <span className={`text-xs px-2 py-1 rounded-full ${
+                                alloc.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                              }`}>
+                                {alloc.status}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-slate-600">No allocations yet.</p>
